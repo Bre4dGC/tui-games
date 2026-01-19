@@ -1,8 +1,8 @@
-CC = gcc
+CC = clang
 CFLAGS = -Wall -Wextra -std=c99 -pedantic
 
 DIR_BIN = bin
-DIR_SRC = games
+DIR_SRC = src
 
 SRCS = $(wildcard $(DIR_SRC)/*.c)
 EXEC = $(patsubst $(DIR_SRC)/%.c,$(DIR_BIN)/%,$(SRCS))
@@ -16,4 +16,4 @@ $(DIR_BIN)/%: $(DIR_SRC)/%.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 clean:
-	rm -f $(EXEC)
+	rm -rf $(DIR_BIN)

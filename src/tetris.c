@@ -21,7 +21,7 @@ void render(const char shape[SHAPE_SIZE][SHAPE_SIZE])
     printf("\n");
 }
 
-void rotate()
+void rotate(void)
 {
     for(int i = 0; i < SHAPE_SIZE; ++i){
         for(int j = 0; j < SHAPE_SIZE; ++j){

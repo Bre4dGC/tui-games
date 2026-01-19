@@ -8,9 +8,25 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <threads.h>
+
+#define BOARD_SIZE 10
+
+#define CELL_CURRENT board[y][x]
+#define CELL_ABOVE   board[y-1][x]
+#define CELL_BOTTOM  board[y+1][x]
+#define CELL_LEFT    board[y][x-1]
+#define CELL_RIGHT   board[y][x+1]
+
+#define MSLEEP(M) thrd_sleep(&(struct timespec){.tv_nsec = M * CLOCKS_PER_SEC}, NULL);
+#define SSLEEP(S) thrd_sleep(&(struct timespec){.tv_sec = S}, NULL);
+
+#define MOVE_UP     if(cursor.y > 0) cursor.y--
+#define MOVE_LEFT   if(cursor.x > 0) cursor.x--
+#define MOVE_DOWN   if(cursor.y < BOARD_SIZE-1) cursor.y++
+#define MOVE_RIGHT  if(cursor.x < BOARD_SIZE-1) cursor.x++
 
 typedef enum { RED, GREEN, BLUE, YELLOW, MAGENTA, CYAN, GRAY } colors;
-
 typedef struct {int y; int x;} point;
 
 char* color_code(colors color)
@@ -31,6 +47,7 @@ char* color_code(colors color)
 void put_colored(char ch, colors color)
 {
     printf("%s%c\033[0m", color_code(color), ch);
+    fflush(stdout);
 }
 
 void print_colored(const char *text, colors color) 
