@@ -12,11 +12,11 @@ Classic minesweeper game with grid-based gameplay.
 
 ### Compilation
 ```bash
-make all # Compile all games
+make # Compile all games
 
-gcc -o minesweeper minesweeper.c # Or compile specific game
+clang -o bin/minesweeper src/minesweeper.c # Or compile specific game
 ```
 
 ```bash
-./minesweeper # or different game
+./bin/<game>
 ```
