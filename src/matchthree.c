@@ -36,12 +36,8 @@ int main(void)
         
         if(POINT_CMP(cursor, ((point){-1,-1}))) cursor = ((point){0,0});
 
-        if(matches()){
-            draw();
-            continue;
-        }
-
         draw();
+        if(matches()) continue;
 
         switch(get_ch()){
             case 'w': MOVE_UP;    continue;
@@ -134,13 +130,15 @@ bool swap(void)
     else {
         return false;
     }
-    
+
     enum tile temp = board[selected.y][selected.x];
     board[selected.y][selected.x] = board[target.y][target.x];
     board[target.y][target.x] = temp;
+    
+    draw();    
+    MSLEEP(200);
+
     if(!matches()){
-        draw();
-        MSLEEP(300);
         temp = board[selected.y][selected.x];
         board[selected.y][selected.x] = board[target.y][target.x];
         board[target.y][target.x] = temp;
