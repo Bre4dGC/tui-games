@@ -10,6 +10,12 @@ Classic minesweeper game with grid-based gameplay.
 - Reveal cells with Spacebar
 - Quit with 'q'
 
+### 2. Tic Tac Toe
+Two-player Tic Tac Toe game.
+- Players take turns entering cell numbers (1-9)
+- First to align three symbols wins
+- Draw if all cells filled without a winner
+
 ### Compilation
 ```bash
 make # Compile all games

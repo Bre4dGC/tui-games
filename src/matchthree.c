@@ -10,10 +10,8 @@ enum tile {
 };
 
 enum tile board[BOARD_SIZE][BOARD_SIZE] = {0};
-
-point cursor = {0,0};
 point selected = {0,0};
-
+point cursor = {0,0};
 size_t score = 0;
 int empty_cells = 0;
 
@@ -45,7 +43,6 @@ int main(void)
             case ' ': selected = cursor; break;
             case 'q': return true;
         }
-        
     }
     return 0;
 }
