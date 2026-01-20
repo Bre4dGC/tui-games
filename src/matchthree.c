@@ -10,15 +10,16 @@ enum tile {
 };
 
 enum tile board[BOARD_SIZE][BOARD_SIZE] = {0};
-point selected = {0,0};
-point cursor = {0,0};
+point cursor = {-1,-1};
+point selected = {-1,-1};
 size_t score = 0;
 int empty_cells = 0;
 
 void draw(void);
 int fall(void);
-bool swap(point p1, point p2);
+bool swap(void);
 bool matches(void);
+void destroy(void);
 enum tile rand_tile(void);
 char tile_to_char(enum tile t);
 colors tile_to_color(enum tile t);
@@ -30,9 +31,16 @@ int main(void)
         while(fall() != 0){
             draw();
             empty_cells = 0;
-            MSLEEP(400);
+            MSLEEP(250);
         }
         
+        if(POINT_CMP(cursor, ((point){-1,-1}))) cursor = ((point){0,0});
+
+        if(matches()){
+            draw();
+            continue;
+        }
+
         draw();
 
         switch(get_ch()){
@@ -40,7 +48,16 @@ int main(void)
             case 'a': MOVE_LEFT;  continue;
             case 's': MOVE_DOWN;  continue;
             case 'd': MOVE_RIGHT; continue;
-            case ' ': selected = cursor; break;
+            case ' ':
+                if(POINT_CMP(selected, ((point){-1,-1}))){
+                    selected = cursor;
+                }
+                else {
+                    swap();
+                    selected = (point){-1,-1};
+                }
+                draw();
+                break;
             case 'q': return true;
         }
     }
@@ -49,22 +66,22 @@ int main(void)
 
 void draw(void)
 {
-    bool is_selected = false;
-
+    printf("%zu", score);
     putchar('\n');
     for(int y = 0; y < BOARD_SIZE; ++y){
         for(int x = 0; x < BOARD_SIZE; ++x){
-            is_selected = cursor.y == y && cursor.x == x;
-            is_selected ?
-                printf("[%s%c\033[0m]",
-                    color_code(tile_to_color(board[y][x])),
-                    tile_to_char(board[y][x])
-                )
-                :
-                printf(" %s%c\033[0m ",
-                    color_code(tile_to_color(board[y][x])),
-                    tile_to_char(board[y][x])
-                );
+            if(POINT_CMP(cursor, ((point){y,x}))) printf("[");
+            else printf(" ");
+
+            if(POINT_CMP(selected, ((point){y,x}))){
+                put_colored(tile_to_char(board[y][x]), GRAY);
+            }
+            else {
+                put_colored(tile_to_char(board[y][x]), tile_to_color(board[y][x]));
+            }
+
+            if(POINT_CMP(cursor, ((point){y,x}))) printf("]");
+            else printf(" ");
         }
         putchar('\n');
     }
@@ -93,23 +110,76 @@ int fall(void)
             }
         }
     }
+    return empty_cells;
 }
 
-bool swap(point p1, point p2)
+bool swap(void)
 {
+    point target = selected;
+    if(cursor.y == selected.y && cursor.x == selected.x){
+        return false;
+    }
+    else if(cursor.y == selected.y - 1 && cursor.x == selected.x){
+        target.y--;
+    }
+    else if(cursor.y == selected.y + 1 && cursor.x == selected.x){
+        target.y++;
+    }
+    else if(cursor.y == selected.y && cursor.x == selected.x - 1){
+        target.x--;
+    }
+    else if(cursor.y == selected.y && cursor.x == selected.x + 1){
+        target.x++;
+    }
+    else {
+        return false;
+    }
     
-    return false;
+    enum tile temp = board[selected.y][selected.x];
+    board[selected.y][selected.x] = board[target.y][target.x];
+    board[target.y][target.x] = temp;
+    if(!matches()){
+        draw();
+        MSLEEP(300);
+        temp = board[selected.y][selected.x];
+        board[selected.y][selected.x] = board[target.y][target.x];
+        board[target.y][target.x] = temp;
+        return false;
+    }
+    return true;
 }
 
 bool matches(void)
 {
-    // Find and clear matches of three or more tiles
-    return false;
-}
-
-void destroy(void)
-{
-
+    bool found_match = false;
+    
+    for(int y = 0; y < BOARD_SIZE; ++y){
+        for(int x = 0; x < BOARD_SIZE - 2; ++x){
+            if(CELL_CURRENT != TILE_EMPTY && CELL_CURRENT == board[y][x+1] && CELL_CURRENT == board[y][x+2]){
+                found_match = true;
+                for(int k = 0; k < 3; ++k){
+                    board[y][x+k] = TILE_EMPTY;
+                    score += 10;
+                }
+                MSLEEP(100);
+            }
+        }
+    }
+    
+    for(int x = 0; x < BOARD_SIZE; ++x){
+        for(int y = 0; y < BOARD_SIZE - 2; ++y){
+            if(CELL_CURRENT != TILE_EMPTY && CELL_CURRENT == board[y+1][x] && CELL_CURRENT == board[y+2][x]){
+                found_match = true;
+                for(int k = 0; k < 3; ++k){
+                    board[y+k][x] = TILE_EMPTY;
+                    score += 10;
+                }
+                MSLEEP(100);
+            }
+        }
+    }
+    
+    return found_match;
 }
 
 enum tile rand_tile(void)

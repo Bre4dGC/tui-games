@@ -26,6 +26,8 @@
 #define MOVE_DOWN   if(cursor.y < BOARD_SIZE-1) cursor.y++
 #define MOVE_RIGHT  if(cursor.x < BOARD_SIZE-1) cursor.x++
 
+#define POINT_CMP(a,b) (a.x == b.x && a.y == b.y)
+
 typedef enum { RED, GREEN, BLUE, YELLOW, MAGENTA, CYAN, GRAY } colors;
 typedef struct {int y; int x;} point;
 
