@@ -12,9 +12,15 @@ Classic minesweeper game with grid-based gameplay.
 
 ### 2. Tic Tac Toe
 Two-player Tic Tac Toe game.
-- Players take turns entering cell numbers (1-9)
-- First to align three symbols wins
-- Draw if all cells filled without a winner
+- Navigate with WASD keys
+- Place X or O with Spacebar
+- Quit with 'q'
+
+### 3. Match-3 Puzzle
+A simple match-3 puzzle game.
+- Navigate with WASD keys
+- Swap tiles with Spacebar + direction + Spacebar
+- Quit with 'q'
 
 ### Compilation
 ```bash
