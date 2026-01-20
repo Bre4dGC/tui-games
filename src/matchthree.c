@@ -19,7 +19,6 @@ void draw(void);
 int fall(void);
 bool swap(void);
 bool matches(void);
-void destroy(void);
 enum tile rand_tile(void);
 char tile_to_char(enum tile t);
 colors tile_to_color(enum tile t);
@@ -31,7 +30,7 @@ int main(void)
         while(fall() != 0){
             draw();
             empty_cells = 0;
-            MSLEEP(250);
+            MSLEEP(200);
         }
         
         if(POINT_CMP(cursor, ((point){-1,-1}))) cursor = ((point){0,0});
@@ -52,7 +51,6 @@ int main(void)
                     swap();
                     selected = (point){-1,-1};
                 }
-                draw();
                 break;
             case 'q': return true;
         }
@@ -69,12 +67,7 @@ void draw(void)
             if(POINT_CMP(cursor, ((point){y,x}))) printf("[");
             else printf(" ");
 
-            if(POINT_CMP(selected, ((point){y,x}))){
-                put_colored(tile_to_char(board[y][x]), GRAY);
-            }
-            else {
-                put_colored(tile_to_char(board[y][x]), tile_to_color(board[y][x]));
-            }
+            put_colored(tile_to_char(board[y][x]), tile_to_color(board[y][x]));
 
             if(POINT_CMP(cursor, ((point){y,x}))) printf("]");
             else printf(" ");
@@ -135,7 +128,7 @@ bool swap(void)
     board[selected.y][selected.x] = board[target.y][target.x];
     board[target.y][target.x] = temp;
     
-    draw();    
+    draw();
     MSLEEP(200);
 
     if(!matches()){
@@ -150,33 +143,47 @@ bool swap(void)
 bool matches(void)
 {
     bool found_match = false;
-    
-    for(int y = 0; y < BOARD_SIZE; ++y){
-        for(int x = 0; x < BOARD_SIZE - 2; ++x){
-            if(CELL_CURRENT != TILE_EMPTY && CELL_CURRENT == board[y][x+1] && CELL_CURRENT == board[y][x+2]){
+
+    for (int y = 0; y < BOARD_SIZE; ++y) {
+        for (int x = 0; x < BOARD_SIZE - 2; ++x) {
+            if (board[y][x] != TILE_EMPTY &&
+                board[y][x] == board[y][x + 1] &&
+                board[y][x] == board[y][x + 2]) {
                 found_match = true;
-                for(int k = 0; k < 3; ++k){
-                    board[y][x+k] = TILE_EMPTY;
+                enum tile temp = board[y][x];
+                for (int k = 0; x + k < BOARD_SIZE && board[y][x + k] == temp; ++k) {
+                    board[y][x + k] = TILE_EMPTY;
                     score += 10;
                 }
-                MSLEEP(100);
+                for (int k = 1; x - k >= 0 && board[y][x - k] == temp; ++k) {
+                    board[y][x - k] = TILE_EMPTY;
+                    score += 10;
+                }
+                MSLEEP(200);
             }
         }
     }
-    
-    for(int x = 0; x < BOARD_SIZE; ++x){
-        for(int y = 0; y < BOARD_SIZE - 2; ++y){
-            if(CELL_CURRENT != TILE_EMPTY && CELL_CURRENT == board[y+1][x] && CELL_CURRENT == board[y+2][x]){
+
+    for (int x = 0; x < BOARD_SIZE; ++x) {
+        for (int y = 0; y < BOARD_SIZE - 2; ++y) {
+            if (board[y][x] != TILE_EMPTY &&
+                board[y][x] == board[y + 1][x] &&
+                board[y][x] == board[y + 2][x]) {
                 found_match = true;
-                for(int k = 0; k < 3; ++k){
-                    board[y+k][x] = TILE_EMPTY;
+                enum tile temp = board[y][x];
+                for (int k = 0; y + k < BOARD_SIZE && board[y + k][x] == temp; ++k) {
+                    board[y + k][x] = TILE_EMPTY;
                     score += 10;
                 }
-                MSLEEP(100);
+                for (int k = 1; y - k >= 0 && board[y - k][x] == temp; ++k) {
+                    board[y - k][x] = TILE_EMPTY;
+                    score += 10;
+                }
+                MSLEEP(200);
             }
         }
     }
-    
+
     return found_match;
 }
 
