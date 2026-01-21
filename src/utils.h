@@ -3,7 +3,6 @@
 
 #include <stdio.h>
 #include <time.h>
-#include <termios.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdbool.h>
@@ -27,6 +26,14 @@
 #define MOVE_RIGHT  if(cursor.x < BOARD_SIZE-1) cursor.x++
 
 #define POINT_CMP(a,b) (a.x == b.x && a.y == b.y)
+
+#define PRINT_RED(s)     printf("\033[31m%s\033[0m", s)
+#define PRINT_GREEN(s)   printf("\033[32m%s\033[0m", s)
+#define PRINT_BLUE(s)    printf("\033[34m%s\033[0m", s)
+#define PRINT_YELLOW(s)  printf("\033[33m%s\033[0m", s)
+#define PRINT_MAGENTA(s) printf("\033[35m%s\033[0m", s)
+#define PRINT_CYAN(s)    printf("\033[36m%s\033[0m", s)
+#define PRINT_GRAY(s)    printf("\033[30m%s\033[0m", s)
 
 typedef enum { RED, GREEN, BLUE, YELLOW, MAGENTA, CYAN, GRAY } colors;
 typedef struct {int y; int x;} point;
@@ -62,6 +69,16 @@ void print_colored(const char *text, colors color)
     printf("%s%s\033[0m\n", color_code(color), text);
 }
 
+// support for windows and linux
+#ifdef _WIN32
+#include <conio.h>
+char get_ch(void) {
+    return _getch();
+}
+#endif
+
+#ifdef __linux__
+#include <termios.h>
 char get_ch(void) {
     struct termios oldt, newt;
     char c;
@@ -78,5 +95,6 @@ char get_ch(void) {
     
     return c;
 }
+#endif
 
 #endif // UTILS_H

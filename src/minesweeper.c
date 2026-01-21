@@ -9,7 +9,7 @@
 
 int board[LENGTH][LENGTH] = {0};
 point bomb_coords[NUMBER_OF_BOMB] = {0};
-point selected_pt = {1,1};
+point cursor = {1,1};
 
 void init(void);
 void draw(void);
@@ -62,7 +62,7 @@ void draw(void)
     char ch;
     for(int y = 0; y < LENGTH; ++y){
         for(int x = 0; x < LENGTH; ++x){
-            is_selected = selected_pt.y == y && selected_pt.x == x;
+            is_selected = cursor.y == y && cursor.x == x;
             switch(board[y][x]){
                 case HIDDEN:  ch = '.'; break;
                 case EMPTY:   ch = ' '; break;
@@ -82,7 +82,6 @@ bool open(int x, int y)
     if(x < 0 || x >= LENGTH || y < 0 || y >= LENGTH) return false;
     if(board[y][x] != HIDDEN && board[y][x] != FLAGGED) return false;
     if(is_bomb(x, y)) return true;
-
     
     int count = count_adjacent_bombs(x, y);
     board[y][x] = count;
@@ -102,21 +101,17 @@ bool open(int x, int y)
 bool do_action(void)
 {
     switch(get_ch()){
-        case 'w': if(selected_pt.y > 0) selected_pt.y--; break;
-        case 'a': if(selected_pt.x > 0) selected_pt.x--; break;
-        case 's': if(selected_pt.y < LENGTH-1) selected_pt.y++; break;
-        case 'd': if(selected_pt.x < LENGTH-1) selected_pt.x++; break;
+        case 'w': MOVE_UP;    break;
+        case 'a': MOVE_LEFT;  break;
+        case 's': MOVE_DOWN;  break;
+        case 'd': MOVE_RIGHT; break;
         case 'q': return true;
         case 'f':
-            if(board[selected_pt.y][selected_pt.x] == HIDDEN)
-                board[selected_pt.y][selected_pt.x] = FLAGGED; 
-            else if(board[selected_pt.y][selected_pt.x] == FLAGGED)
-                board[selected_pt.y][selected_pt.x] = HIDDEN;
+            board[cursor.y][cursor.x] = board[cursor.y][cursor.x] == HIDDEN ? FLAGGED : HIDDEN;
             break;
         case ' ': 
-            if(board[selected_pt.y][selected_pt.x] == HIDDEN){
-                return open(selected_pt.x, selected_pt.y);
-            }
+            if(board[cursor.y][cursor.x] == HIDDEN)
+                return open(cursor.x, cursor.y);
             break;
         default: break;
     }
