@@ -7,7 +7,6 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <threads.h>
 
 #define BOARD_SIZE 10
 
@@ -16,9 +15,6 @@
 #define CELL_BOTTOM  board[y+1][x]
 #define CELL_LEFT    board[y][x-1]
 #define CELL_RIGHT   board[y][x+1]
-
-#define MSLEEP(M) thrd_sleep(&(struct timespec){.tv_nsec = M * CLOCKS_PER_SEC}, NULL);
-#define SSLEEP(S) thrd_sleep(&(struct timespec){.tv_sec = S}, NULL);
 
 #define MOVE_UP     if(cursor.y > 0) cursor.y--
 #define MOVE_LEFT   if(cursor.x > 0) cursor.x--
@@ -72,6 +68,10 @@ void print_colored(const char *text, colors color)
 // support for windows and linux
 #ifdef _WIN32
 #include <conio.h>
+
+#define MSLEEP(M) Sleep(M)
+#define SSLEEP(S) Sleep(S * 1000)
+
 char get_ch(void) {
     return _getch();
 }
@@ -79,6 +79,11 @@ char get_ch(void) {
 
 #ifdef __linux__
 #include <termios.h>
+#include <threads.h>
+
+#define MSLEEP(M) thrd_sleep(&(struct timespec){.tv_nsec = M * CLOCKS_PER_SEC}, NULL);
+#define SSLEEP(S) thrd_sleep(&(struct timespec){.tv_sec = S}, NULL);
+
 char get_ch(void) {
     struct termios oldt, newt;
     char c;
