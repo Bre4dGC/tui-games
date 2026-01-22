@@ -68,6 +68,7 @@ void print_colored(const char *text, colors color)
 // support for windows and linux
 #ifdef _WIN32
 #include <conio.h>
+#include <windows.h>
 
 #define MSLEEP(M) Sleep(M)
 #define SSLEEP(S) Sleep(S * 1000)
