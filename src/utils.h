@@ -31,21 +31,24 @@
 #define PRINT_CYAN(s)    printf("\033[36m%s\033[0m", s)
 #define PRINT_GRAY(s)    printf("\033[30m%s\033[0m", s)
 
-typedef enum { RED, GREEN, BLUE, YELLOW, MAGENTA, CYAN, GRAY } colors;
+#define IS_KEY_PRESSED (true)
+
+typedef enum {RED, GREEN, BLUE, YELLOW, MAGENTA, CYAN, GRAY} colors;
+typedef enum {UP, DOWN, LEFT, RIGHT} direction;
 typedef struct {int y; int x;} point;
 
 char* color_code(colors color)
 {
     switch(color)
     {
-        case RED:   return "\033[31m";
-        case GREEN: return "\033[32m";
-        case BLUE:  return "\033[34m";
-        case YELLOW: return "\033[33m";
+        case RED:     return "\033[31m";
+        case GREEN:   return "\033[32m";
+        case BLUE:    return "\033[34m";
+        case YELLOW:  return "\033[33m";
         case MAGENTA: return "\033[35m";
-        case CYAN:  return "\033[36m";
-        case GRAY:  return "\033[30m";
-        default:    return "\033[30m";
+        case CYAN:    return "\033[36m";
+        case GRAY:    return "\033[30m";
+        default:      return "\033[30m";
     }
 }
 
