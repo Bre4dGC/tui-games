@@ -31,6 +31,14 @@ A simple match-3 puzzle game.
 - Swap tiles with Spacebar + direction + Spacebar
 - Quit with 'q'
 
+### 4. Snake
+
+<img src="assets/snake.png" alt="snake" width="200"/>
+
+Snake game.
+- Navigate with WASD keys
+- Quit with 'q'
+
 ### Compilation
 ```bash
 make # Compile all games
