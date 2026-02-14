@@ -17,7 +17,7 @@ int main(void)
         draw();
 
         printf("Turn player %c\n", player);
-        switch(get_ch()){
+        switch(getch()){
             case 'w': MOVE_UP;    continue;
             case 'a': MOVE_LEFT;  continue;
             case 's': MOVE_DOWN;  continue;

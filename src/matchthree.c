@@ -42,7 +42,7 @@ int main(void)
         score += addition_score;
         addition_score = 0;
 
-        switch(get_ch()){
+        switch(getch()){
             case 'w': MOVE_UP;    continue;
             case 'a': MOVE_LEFT;  continue;
             case 's': MOVE_DOWN;  continue;

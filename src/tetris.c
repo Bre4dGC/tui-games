@@ -10,7 +10,7 @@ char shape[SHAPE_SIZE][SHAPE_SIZE] = {
 
 char rotated[SHAPE_SIZE][SHAPE_SIZE];
 
-void render(const char shape[SHAPE_SIZE][SHAPE_SIZE])
+void draw(const char shape[SHAPE_SIZE][SHAPE_SIZE])
 {
     for(int i = 0; i < SHAPE_SIZE; ++i){
         for(int j = 0; j < SHAPE_SIZE; ++j){
@@ -29,7 +29,7 @@ void rotate(void)
         }
     }
     memcpy(shape, rotated, SHAPE_SIZE * SHAPE_SIZE);
-    render(rotated);
+    draw(rotated);
 }
 
 int main(void)

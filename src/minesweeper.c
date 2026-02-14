@@ -13,22 +13,18 @@ point cursor = {1,1};
 
 void init(void);
 void draw(void);
-bool open(int x, int y);
+bool open_cell(point pt);
 bool do_action(void);
-bool is_bomb(int x, int y);
-int count_adjacent_bombs(int x, int y);
+bool is_bomb(point pt);
+int count_adjacent_bombs(point pt);
 void display_bombs(void);
 
 int main(void)
 {
     srand(time(NULL));
-    bool is_gameover = false;
 
     init();
-    while(!is_gameover){
-        draw();
-        is_gameover = do_action();
-    }
+    do draw(); while(!do_action());
     
     display_bombs();
     draw();
@@ -45,14 +41,14 @@ void init(void)
     }
 
     for(int i = 0; i <= NUMBER_OF_BOMB; ++i){
-        int x, y;
+        point pt;
         do {
-            x = rand() % LENGTH;
-            y = rand() % LENGTH;
-        } while (is_bomb(x, y));
+            pt.x = rand() % LENGTH;
+            pt.y = rand() % LENGTH;
+        } while (is_bomb(pt));
 
-        bomb_coords[i].x = x;
-        bomb_coords[i].y = y;
+        bomb_coords[i].x = pt.x;
+        bomb_coords[i].y = pt.y;
     }
 }
 
@@ -77,20 +73,20 @@ void draw(void)
     putchar('\n');
 }
 
-bool open(int x, int y)
+bool open_cell(point pt)
 {
-    if(x < 0 || x >= LENGTH || y < 0 || y >= LENGTH) return false;
-    if(board[y][x] != HIDDEN && board[y][x] != FLAGGED) return false;
-    if(is_bomb(x, y)) return true;
+    if(pt.x < 0 || pt.x >= LENGTH || pt.y < 0 || pt.y >= LENGTH) return false;
+    if(board[pt.y][pt.x] != HIDDEN && board[pt.y][pt.x] != FLAGGED) return false;
+    if(is_bomb(pt)) return true;
     
-    int count = count_adjacent_bombs(x, y);
-    board[y][x] = count;
+    int count = count_adjacent_bombs(pt);
+    board[pt.y][pt.x] = count;
 
     if(count == 0){
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
                 if (dx == 0 && dy == 0) continue;
-                open(x + dx, y + dy);
+                open_cell((point){.x = pt.x + dx, .y = pt.y + dy});
             }
         }
     }
@@ -100,7 +96,7 @@ bool open(int x, int y)
 
 bool do_action(void)
 {
-    switch(get_ch()){
+    switch(getch()){
         case 'w': MOVE_UP;    break;
         case 'a': MOVE_LEFT;  break;
         case 's': MOVE_DOWN;  break;
@@ -110,35 +106,35 @@ bool do_action(void)
             board[cursor.y][cursor.x] = board[cursor.y][cursor.x] == HIDDEN ? FLAGGED : HIDDEN;
             break;
         case ' ': 
-            if(board[cursor.y][cursor.x] == HIDDEN)
-                return open(cursor.x, cursor.y);
+            if(board[cursor.y][cursor.x] == HIDDEN){
+                return open_cell(cursor);
+            }
             break;
         default: break;
     }
     return false;
 }
 
-bool is_bomb(int x, int y)
+bool is_bomb(point pt)
 {
     for(int i = 0; i < NUMBER_OF_BOMB; ++i){
-        if(x == bomb_coords[i].x && y == bomb_coords[i].y){
+        if(pt.x == bomb_coords[i].x && pt.y == bomb_coords[i].y){
             return true;
         }
     }
     return false;
 }
 
-int count_adjacent_bombs(int x, int y)
+int count_adjacent_bombs(point pt)
 {
     int count = 0;
     for(int dx = -1; dx <= 1; dx++){
         for(int dy = -1; dy <= 1; dy++){
             if(dx == 0 && dy == 0) continue;
             
-            int nx = x + dx;
-            int ny = y + dy;
+            point n = {.x = pt.x + dx, .y = pt.y + dy};
             
-            if(nx >= 0 && nx < LENGTH && ny >= 0 && ny < LENGTH && is_bomb(nx, ny)){
+            if(n.x >= 0 && n.x < LENGTH && n.y >= 0 && n.y < LENGTH && is_bomb(n)){
                 count++;
             }
         }
