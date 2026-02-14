@@ -1,63 +1,126 @@
 #include "utils.h"
 
-typedef enum {EMPTY, APPLE, SNAKE} cell;
-
 typedef struct {
     point head;
-    point body[100];
+    point body[BOARD_SIZE * BOARD_SIZE];
     size_t len;
-    direction direction;
+    direction dir;
 } snake;
 
-void draw(cell** board);
-void move(snake* snk, direction direction);
+point apple = {.y = 0, .x = 0};
+
+void draw(snake snake);
+bool move(snake* snk);
 void random(point* pt);
+char snake_head_char(snake snake);
 
 int main(void)
 {
-    cell board[BOARD_SIZE][BOARD_SIZE] = {0};
-    snake snake = {{0,0},{0},1};
-    point apple = {0,0};
-    bool is_over = false;
+    snake snake = {.head = {5,5}, .body = {0}, .len = 0, .dir = UP};
     
-    random(&snake.head);
+    srand(time(NULL));
+    set_nonblock_mode();
+
     random(&apple);
 
     do {
-        draw(board);
-        MSLEEP(200);
-        if(IS_KEY_PRESSED){
-            move(&snake, snake.direction);
-            continue;
+        draw(snake);
+        MSLEEP(300);
+        switch(is_key_pressed()){
+            case 'w': if(snake.dir != DOWN) snake.dir = UP;    break;
+            case 'a': if(snake.dir != RIGHT)snake.dir = LEFT;  break;
+            case 's': if(snake.dir != UP)   snake.dir = DOWN;  break;
+            case 'd': if(snake.dir != LEFT) snake.dir = RIGHT; break;
+            case 'q': return 0;
         }
-        switch(get_ch()){
-            case 'w': snake.direction = UP;    break;
-            case 'a': snake.direction = LEFT;  break;
-            case 's': snake.direction = DOWN;  break;
-            case 'd': snake.direction = RIGHT; break;
-            case 'q': is_over = true;
-        }
-        move(&snake, snake.direction);
-    } while(!is_over);
+    } while(move(&snake));
     return 0;
 }
 
-void draw(cell** board)
+void draw(snake snake)
 {
-    for(size_t y = 0; y < BOARD_SIZE; y++){
-        for(size_t x = 0; x < BOARD_SIZE; x++){
-            board[y][x] = EMPTY;
+    point pos = {.y = 0, .x = 0};
+
+    printf("\n");
+    for(pos.y = 0; pos.y < BOARD_SIZE; pos.y++){
+        for(pos.x = 0; pos.x < BOARD_SIZE; pos.x++){
+            if(POINT_CMP(pos, apple)){
+                PRINT_C_RED('@');
+                continue;
+            }
+            if(POINT_CMP(pos, snake.head)){
+                PRINT_C_GREEN(snake_head_char(snake));
+                continue;
+            }
+            for(size_t i = 0; i < snake.len; i++){
+                if(POINT_CMP(pos, snake.body[i])){
+                    PRINT_C_GREEN('s');
+                    goto govnocode;
+                }
+            }
+            PRINT_C_GRAY('.');
+            govnocode:
         }
         printf("\n");
     }
 }
 
-void move(snake* snake, direction direction)
+bool move(snake* snake)
 {
+    if(!snake) return false;
 
+    point new_head = snake->head;
+    
+    switch(snake->dir)
+    {
+        case UP:    new_head.y--; break;
+        case DOWN:  new_head.y++; break;
+        case LEFT:  new_head.x--; break;
+        case RIGHT: new_head.x++; break;
+        default:    return false;
+    }
+
+    if(new_head.x < 0 || new_head.x >= BOARD_SIZE || new_head.y < 0 || new_head.y >= BOARD_SIZE){
+        return false;
+    }
+    
+    for(size_t i = 0; i < snake->len; i++){
+        if(POINT_CMP(new_head, snake->body[i])){
+            return false;
+        }
+    }
+    
+
+    if(POINT_CMP(new_head, apple)){
+        random(&apple);
+        snake->body[snake->len++] = new_head;
+    }
+
+    if(snake->len > 0){
+        for(size_t i = snake->len; i > 0; i--){
+            snake->body[i] = snake->body[i-1];
+        }
+        snake->body[0] = snake->head;
+    }
+
+    snake->head = new_head;
+    return true;
 }
 
 void random(point* pt)
 {
+    if(!pt) return;
+    pt->x = rand() % BOARD_SIZE;
+    pt->y = rand() % BOARD_SIZE;
+}
 
+char snake_head_char(snake snake)
+{
+    switch(snake.dir)
+    {
+        case UP:    return '^';
+        case LEFT:  return '<';
+        case DOWN:  return 'v';
+        case RIGHT: return '>';
+    }
 }
