@@ -1,8 +1,13 @@
 #include "utils.h"
 
 typedef struct {
+    point pos;
+    direction dir;
+} snake_body;
+
+typedef struct {
     point head;
-    point body[BOARD_SIZE * BOARD_SIZE];
+    snake_body body[BOARD_SIZE * BOARD_SIZE];
     size_t len;
     direction dir;
 } snake;
@@ -13,6 +18,7 @@ void draw(snake snake);
 bool move(snake* snk);
 void random(point* pt);
 char snake_head_char(snake snake);
+char snake_body_char(snake_body body);
 
 int main(void)
 {
@@ -41,7 +47,7 @@ void draw(snake snake)
 {
     point pos = {.y = 0, .x = 0};
 
-    printf("\n");
+    printf("\nSnake Length: %zu\n", snake.len + 1);
     for(pos.y = 0; pos.y < BOARD_SIZE; pos.y++){
         for(pos.x = 0; pos.x < BOARD_SIZE; pos.x++){
             if(POINT_CMP(pos, apple)){
@@ -53,8 +59,8 @@ void draw(snake snake)
                 continue;
             }
             for(size_t i = 0; i < snake.len; i++){
-                if(POINT_CMP(pos, snake.body[i])){
-                    PRINT_C_GREEN('s');
+                if(POINT_CMP(pos, snake.body[i].pos)){
+                    PRINT_C_GREEN(snake_body_char(snake.body[i]));
                     goto govnocode;
                 }
             }
@@ -85,22 +91,22 @@ bool move(snake* snake)
     }
     
     for(size_t i = 0; i < snake->len; i++){
-        if(POINT_CMP(new_head, snake->body[i])){
+        if(POINT_CMP(new_head, snake->body[i].pos)){
             return false;
         }
     }
-    
 
     if(POINT_CMP(new_head, apple)){
         random(&apple);
-        snake->body[snake->len++] = new_head;
+        snake->body[snake->len++].pos = new_head;
     }
 
     if(snake->len > 0){
         for(size_t i = snake->len; i > 0; i--){
             snake->body[i] = snake->body[i-1];
         }
-        snake->body[0] = snake->head;
+        snake->body[0].pos = snake->head;
+        snake->body[0].dir = snake->dir;
     }
 
     snake->head = new_head;
@@ -122,5 +128,18 @@ char snake_head_char(snake snake)
         case LEFT:  return '<';
         case DOWN:  return 'v';
         case RIGHT: return '>';
+    }
+}
+
+char snake_body_char(snake_body body)
+{
+    switch(body.dir)
+    {
+        case UP:
+        case DOWN:
+            return body.pos.y % 2 == 0 ? '\\' : '/';
+        case LEFT:
+        case RIGHT:
+            return body.pos.x % 2 == 0 ? '-' : '^';
     }
 }
